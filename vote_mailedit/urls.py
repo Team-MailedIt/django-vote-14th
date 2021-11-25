@@ -20,7 +20,7 @@ from .settings import base
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("account/", include("account.urls")),
+    path("api/", include("account.urls")),
 ]
 
 if base.DEBUG:

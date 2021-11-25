@@ -28,3 +28,10 @@ class RegisterAPIView(APIView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TestAPIView(APIView):
+    def get(self, request):
+        return Response(
+            {"message": "test API successfully responsed"}, status=status.HTTP_200_OK
+        )
