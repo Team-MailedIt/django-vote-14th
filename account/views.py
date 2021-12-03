@@ -78,13 +78,26 @@ class AuthView(APIView):
 class CandidateListAPIView(APIView):
     def get(self, request, format=None):
         candidates = Candidate.objects.all()
+        part = request.query_params.get("part", None)
+        if part is not None:
+            candidates = candidates.filter(part=part)
+
+        # 이름순 정렬
+        candidates = candidates.order_by("name")
+        serializer = CandidateSerializer(candidates, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class CandidateResultAPIView(APIView):
+    def get(self, request, format=None):
+        candidates = Candidate.objects.all()
         part = request.GET.get("part", None)
         if part is not None:
             candidates = candidates.filter(part=part)
 
-        # 득표순으로 정렬
+        # 득표순, 이름순으로 정렬
         candidates = candidates.annotate(vote_count=Count("cand_votes")).order_by(
-            "-vote_count"
+            "-vote_count", "name"
         )
         serializer = CandidateSerializer(candidates, many=True)
         return Response(serializer.data, status.HTTP_200_OK)

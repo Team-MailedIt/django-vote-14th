@@ -9,6 +9,7 @@ urlpatterns = [
     path("signin", AuthView.as_view()),
     path("signup", RegisterAPIView.as_view()),
     path("candidate", CandidateListAPIView.as_view()),
+    path("candidate/result", CandidateResultAPIView.as_view()),
     path("candidate/<int:pk>", CandidateDetailAPIView.as_view()),
     path("test", TestAPIView.as_view()),
     path("testauth", TestAuthAPIView.as_view()),
