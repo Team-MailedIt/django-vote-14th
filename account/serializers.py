@@ -21,12 +21,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class CandidateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Candidate
-        fields = ["id", "name", "part"]
-
-
 class VoteSerializer(serializers.ModelSerializer):
     vote_user = serializers.SerializerMethodField()
     vote_candidate = serializers.SerializerMethodField()
@@ -40,3 +34,15 @@ class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
         fields = ["id", "vote_user", "vote_candidate"]
+
+
+class CandidateSerializer(serializers.ModelSerializer):
+    cand_votes = VoteSerializer(many=True)
+    vote_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Candidate
+        fields = ["id", "name", "part", "vote_count", "cand_votes"]
+
+    def get_vote_count(self, obj):
+        return obj.cand_votes.count()

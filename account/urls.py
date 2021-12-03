@@ -10,6 +10,6 @@ urlpatterns = [
     path("signup", RegisterAPIView.as_view()),
     path("candidate", CandidateListAPIView.as_view()),
     path("candidate/<int:pk>", CandidateDetailAPIView.as_view()),
-    path("vote", VoteAPIView.as_view()),
     path("test", TestAPIView.as_view()),
+    path("testauth", TestAuthAPIView.as_view()),
 ]

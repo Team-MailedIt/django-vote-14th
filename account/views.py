@@ -6,8 +6,8 @@ from django.contrib.auth import get_user_model, authenticate
 from .models import Candidate, Vote
 from .serializers import RegisterSerializer, CandidateSerializer, VoteSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from django.db.models import Count
 
 User = get_user_model()
 
@@ -78,11 +78,21 @@ class AuthView(APIView):
 class CandidateListAPIView(APIView):
     def get(self, request, format=None):
         candidates = Candidate.objects.all()
+        part = request.GET.get("part", None)
+        if part is not None:
+            candidates = candidates.filter(part=part)
+
+        # 득표순으로 정렬
+        candidates = candidates.annotate(vote_count=Count("cand_votes")).order_by(
+            "-vote_count"
+        )
         serializer = CandidateSerializer(candidates, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 
 
 class CandidateDetailAPIView(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     def get_object(self, pk):
         try:
             return Candidate.objects.get(pk=pk)
@@ -94,22 +104,22 @@ class CandidateDetailAPIView(APIView):
         serializer = CandidateSerializer(candidate)
         return Response(serializer.data, status.HTTP_200_OK)
 
-
-class VoteAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request, format=None):
+    def post(self, request, pk, format=None):
         try:
-            user_id = request.data.get("user_id")
-            candidate_id = request.data.get("candidate_id")
-            vote = Vote.objects.create(
-                vote_user=User.objects.get(pk=user_id),
-                vote_candidate=Candidate.objects.get(pk=candidate_id),
-            )
+            user = request.user
+            candidate = self.get_object(pk)
+            vote = Vote(vote_user=user, vote_candidate=candidate)
+            vote.save()
             serializer = VoteSerializer(vote)
-        except Exception:
+            return Response(
+                {
+                    "vote": serializer.data,
+                    "message": "Successfully voted",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except:
             return Response(status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class TestAPIView(APIView):
