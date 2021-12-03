@@ -12,16 +12,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ("username", "password", "part")
 
     def create(self, validated_data):
-        password = validated_data.pop("password")
-        user = User(**validated_data)
-        user.set_password(password)
+        user = User(
+            username=validated_data.get("username"),
+            part=validated_data.get("part"),
+        )
+        user.set_password(validated_data.get("password"))
         user.save()
         return user
+
 
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
-        fields = ['id', 'name', 'part']
+        fields = ["id", "name", "part"]
+
 
 class VoteSerializer(serializers.ModelSerializer):
     vote_user = serializers.SerializerMethodField()
@@ -35,4 +39,4 @@ class VoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ['id', 'vote_user', 'vote_candidate']
+        fields = ["id", "vote_user", "vote_candidate"]
