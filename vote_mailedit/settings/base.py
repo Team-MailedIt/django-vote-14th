@@ -32,7 +32,7 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = "account.User"
+AUTH_USER_MODEL = "member.User"
 
 # Application definition
 
@@ -43,9 +43,24 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "account",
+    "django.contrib.sites",
+    # allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    # provider
+    "allauth.socialaccount.providers.google",
+    "member",
     "corsheaders",
 ]
+
+# Social Login
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
