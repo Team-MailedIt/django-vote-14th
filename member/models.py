@@ -1,19 +1,25 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
+from .managers import UserManager
+
+# Create your models here.
 
 PART_CHOICES = [
-    ("FE", "프론트엔드"),
-    ("BE", "백엔드"),
+    ("frontend", "frontend"),
+    ("backend", "backend"),
 ]
 
 
 class User(AbstractUser):
-    part = models.CharField(max_length=2, choices=PART_CHOICES)
+    part = models.CharField(max_length=10, choices=PART_CHOICES)
+
+    objects = UserManager()
+    REQUIRED_FIELDS = ["email"]
 
 
 class Candidate(models.Model):
-    name = models.CharField(max_length=30)
-    part = models.CharField(max_length=2, choices=PART_CHOICES)
+    name = models.CharField(max_length=10)
+    part = models.CharField(max_length=10, choices=PART_CHOICES)
 
     def __str__(self):
         return self.name
