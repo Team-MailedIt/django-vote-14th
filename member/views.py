@@ -16,7 +16,13 @@ class RegisterAPIView(APIView):
     def post(self, request):
         user_serializer = RegisterSerializer(data=request.data)
         if user_serializer.is_valid():
-            user = user_serializer.save()
+            try:
+                user = user_serializer.save()
+            except:
+                return Response(
+                    {"message": "email are required!!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             # access jwt token
             token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
@@ -36,6 +42,20 @@ class RegisterAPIView(APIView):
             res.set_cookie("refresh", refresh_token, httponly=True)
             return res
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UsernameDuplicateView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        isExist = User.objects.filter(username=username).exists()
+        return Response(isExist, status=status.HTTP_200_OK)
+
+
+class EmailDuplicateView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        isExist = User.objects.filter(email=email).exists()
+        return Response(isExist, status=status.HTTP_200_OK)
 
 
 # 로그인
