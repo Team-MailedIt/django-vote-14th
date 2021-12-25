@@ -92,7 +92,9 @@ class AuthView(APIView):
             res.set_cookie("refresh", refresh_token, httponly=True)
             return res
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class CandidateListAPIView(APIView):
@@ -137,6 +139,7 @@ class CandidateDetailAPIView(APIView):
         serializer = CandidateSerializer(candidate)
         return Response(serializer.data, status.HTTP_200_OK)
 
+    # 투표
     def post(self, request, pk, format=None):
         try:
             user = request.user
