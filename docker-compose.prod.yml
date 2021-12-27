@@ -1,5 +1,20 @@
 version: "3.8"
 services:
+  db:
+    container_name: db
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_HOST: '%'
+    expose:
+      - 3306
+    ports:
+      - "3307:3306"
+    env_file:
+      - .env
+    volumes:
+      - dbdata:/var/lib/mysql
+
   web:
     container_name: web
     build:
@@ -13,6 +28,8 @@ services:
     volumes:
       - static:/home/app/web/static
       - media:/home/app/web/media
+    depends_on:
+      - db
     expose:
       - 8000
     entrypoint:
@@ -24,9 +41,9 @@ services:
     build: ./config/nginx
     volumes:
       - type: bind
-        source: /home/app/web/certbot/conf/archive
+        source: /home/app/certbot/conf/archive
         target: /etc/nginx/ssl
-      - /home/app/web/certbot/data:/var/www/certbot
+      - /home/app/certbot/data:/var/www/certbot
       - static:/home/app/web/static
       - media:/home/app/web/media
     ports:
@@ -38,3 +55,4 @@ services:
 volumes:
   static:
   media:
+  dbdata:
